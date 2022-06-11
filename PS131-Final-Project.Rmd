@@ -20,15 +20,15 @@ My project will outline predictor variables of interest that could potentially p
 
 ### What's in this dataset? What is it?
 
-To begin, the dataset is a countrywide record of car accidents from 49 different states. The data set covers a wide time frame where it tracks monthly and daily data spanning from 2016 to 2021. It's important to note that the data was collected from various sources—such as the US and state departments of transportation, law enforcement agencies, traffic cameras, and traffic sensors, etc. There's a wide variety of data, with over 1.5 accidents, or observations, that have been recorded with the highest frequencies of recorded accidents being from the state of California. This model contain various variables, but most notably, one variable contained is the severity attribute which spans from 1-4, where 1 is the lowest severity and 4 is the highest. This severity is determined by it's impact on traffic, or the shortest delay on oncoming traffic as a result of the accident.
+To begin, the data set is a countrywide record of car accidents from 49 different states in the United States. The data set covers a wide time frame where it tracks monthly and daily data spanning from 2016,2017, and 2021. It's important to note that the data was collected from various sources—such as the US and state departments of transportation, law enforcement agencies, traffic cameras, traffic sensors, etc.; so there's a wide variety of data, with over 1.5 accidents, or observations, that have been recorded with the highest frequencies of recorded accidents being from the state of California. This model contain various variables, but most notably, one variable contained is the severity attribute which spans from 1-4, where 1 is the lowest severity and 4 is the highest. This severity is determined by it's impact on traffic, or the shortest delay on oncoming traffic as a result of the accident.
 
 ### Why even create the model?
 
-I'll list further details on the variables below, but essentially, the original data set contained nearly 47 different variables. All these variables levels in importance based on what one might be interested in predicting, but as I noted previously, I want to see what factors may be especially important in predicting severity of a certain accident. Many times we are forced to drive in various different weather conditions and usually we bat a blind eye towards the dangers that may result from these conditions. Weather conditions such as wind speed, weather conditions (rain, snow, etc.), night/day, temperature, and maybe even the presence of certain road factors (roundabouts, cross ways, etc.). It may be important to know the relationship of these accidents and how they might vary in severity to potentially raise awareness to future drivers.
+I'll list further details on the variables below, but essentially, the original data set contained nearly 47 different variables. All these variables levels in importance based on what one might be interested in predicting, but as I noted previously, I want to see what factors may be especially important in predicting severity of a certain accident. Many times we are forced to drive in various different weather conditions and usually we bat a blind eye towards the dangers that may result from these conditions. Weather conditions such as wind speed, weather conditions (rain, snow, etc.), night/day, temperature, and maybe even the presence of certain road factors (roundabouts, cross ways, etc.) may be important to know the relationship of these accidents and how they might vary in severity to potentially raise awareness to future drivers.
 
 ### Loading Data and Packages
 
-The project was found through Kaggle, and as I noted before, there were nearly 1.5 million observations in the data. Therefore, I wasn't able to import the raw data as a whole into R, therefore I must note that I did some light preliminary cleaning of the data set by filtering by only what I will be using as the subject of my analysis, 2021 California data. Therefore, after filtering out blank inputs, and grouping by 2021 and California exclusive cases, we now have a new data set that I can do further cleaning on. Let's clean the data a bit before displaying the full table and splitting the data for further analysis.
+The project was found through Kaggle, which contained nearly 1.5 million observations in the data. Therefore, I wasn't able to import the raw data as a whole into R, therefore I must note that I did some light preliminary cleaning of the data set by filtering by only what I will be using as the subject of my analysis, 2021 California data. Therefore, after filtering out blank inputs, and grouping by 2021 and California exclusive cases, we now have a new data set that I can do further cleaning on. Let's clean the data a bit before displaying the full table and splitting the data for further analysis.
 
 ```{r class.source = "fold-show", message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -65,7 +65,7 @@ accidents_data <- read_csv("data/accidents1.csv")
 
 ## Data Cleaning
 
-Below, we will be removing some unneeded variables, renaming some columns, and other techniques for needed clarity in reading the data. Note, there is no need to remove missing/blank observations since I have already made sure they were not included through excel and before importing the csv.
+Below, we will be removing some unneeded variables, renaming some columns, and other techniques for needed clarity in reading the data. Note, there is no direct need to remove missing/blank observations since I have already made sure they were not included through excel and before importing the csv, but for certainty, I'll rerun the process and check again below.
 
 * Check for any remaining na's
 
@@ -123,7 +123,7 @@ sunrise_sunset | hows the period of day (i.e. day or night) based on sunrise/sun
 
 ### Data Split
 
-I split my data using a proportion of 70/30, where the training data is 80% of my total data, and the testing data covers the other 20%. Because I had a large imbalance in the response variable, severity, then I must use stratified sampling (which you can see in the EDA portion).
+I split my data using a proportion of 70/30, where the training data is 70% of my total data, and the testing data covers the other 30%. Because I had a large imbalance in the response variable, severity, then I must use stratified sampling (which you can see in the EDA portion).
 
 ```{r class.source = "fold-show"}
 accidents_split <- initial_split(accidents, prop = 0.70,strata = severity)
