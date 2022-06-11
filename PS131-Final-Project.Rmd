@@ -74,7 +74,7 @@ accidents <- na.omit(accidents_data)
 sum(is.na(accidents))
 ```
 
-* Remove the start_time and state column since I had already filtered that completely in excel. variables
+* Remove the start_time and state column since I had already filtered that completely in excel. In most cases, wind direction seems pretty negligable as well so it wouldn't be something worth much towards severity in my opinion.
 
 ```{r class.source = "fold-show"}
 accidents <- accidents %>% 
@@ -180,16 +180,14 @@ ggplot(data, aes(x = condition, y = amount, fill = value)) +
   geom_col(position = "fill")
 ```
 
-The first thing we can notice already is the that crossing, traffic signals, and stop related traffic incidents are much more frequent than bumps and railway accidents. Therefore, we might be able to say that since there is a lower amount of railway and bump accidents in both categories, it might be two variables that won't probably be too important in determining the accidents. Additionally, just using logic, it would make sense that these two factors are something that doesn't seem exclusive to severe accidents as well. Being a daily driver myself, most accidents just generally tend to stray away from bumps and railways as they aren't populated parts of the road. 
+The first thing we can notice already is the that crossing, traffic signals, and stop related traffic incidents are much more frequent than bumps and railway accidents. Therefore, we might be able to say that since there is a lower amount of railway and bump accidents in both categories, it might be two variables that won't probably be too important in determining the accidents. Additionally, it would make sense that these two factors are something that doesn't seem exclusive to severe accidents as well based off of experience. Being a daily driver myself, most accidents just generally tend to stray away from bumps and railways as they aren't populated parts of the road. 
 
 ### Distance Correlation with weather conditions?
 
 ```{r}
 accidents_train %>%
   gather(temperature_f,wind_chill_f,humidity_percent,pressure_in,visibility_mi,wind_speed_mph,precipitation_in,-distance_mi, key = "var",value = "value") %>%
-  ggplot(aes(x = value, y = distance_mi)) + geom_point() +
-  facet_wrap(~ var, scales = "free") +
-  theme_bw()
+  ggplot(aes(x = value, y = distance_mi)) + geom_point() + facet_wrap(~ var, scales = "free")
 ```
 
 As seen here, there doesn't seem to be any apparent correlation between the distance with any of the numerical weather conditions. Therefore, it doesn't seem as though weather conditions are too valuable in determining the severity of an accident IN TERMS OF STRICTLY distance, but it's important to note that distance isn't the only thing that accounts for severity, so we should keep that mind moving on. 
@@ -201,7 +199,7 @@ accidents_train %>%
   ggplot(aes(x=distance_mi,y=severity)) + geom_boxplot()
 ```
 
-As I noted previously, the severity of an accident is based largely on how much of traffic the accident ends up holding up. Therefore, we'd have to notions that we'd think that a longer distance of traffic that's held up by the accident would mean a higher severity and they would be correlated. We actually see that there appears to be no correlation and there are pretty extreme outliers in the severity 2 category, which might affect how if our models consider distance as significant or valuable, but remember, this is only a preliminary check and distance can certainly still be a significant variable.
+As I noted previously, the severity of an accident is based largely on how much of traffic the accident ends up holding up. Therefore, we'd have to notions that we'd think that a longer distance of traffic that's held up by the accident would mean a higher severity and they would be correlated. We actually see that there appears to be no correlation but there are pretty extreme outliers in the severity 2 category, which might affect how if our models consider distance as significant or valuable, but remember, this is only a preliminary check and distance can certainly still be a significant variable.
 
 ### Weather conditions
 
@@ -313,7 +311,7 @@ save(accidents_folds,accidents_recipe,accidents_train,file = "R_Scripts/model_fi
 
 * Normalize the predictor variables
 
-* Finally, as I noted before, a valuable way to deal with the class inbalance is to upsample. This means I will randomly sample with replacement our under-represented class until it matches about 50% (in my case) of the more abundance class. The reason for doing this is because if we don't upsample, then our model will continually predict severity 2 because that's the only data that the model is trained to predict since there's almost no appearances of severity 4 accidents, meaning that the models predictive power will be extremely low.
+* Finally, as I noted before, a valuable way to deal with the class unbalance is to up sample. This means I will randomly sample with replacement our under-represented class until it matches about 50% (in my case) of the more abundance class. The reason for doing this is because if we don't up sample, then our model will continually predict severity 2 because that's the only data that the model is trained to predict since there's almost no appearances of severity 4 accidents, meaning that the models predictive power will be extremely low.
 
 ### Preparing the Models
 
@@ -418,7 +416,7 @@ boost_tune_res <- tune_grid(
 save(boost_spec_wf,boost_tune_res,file = "R_Scripts/model_fitting/boost_model.rda")
 ```
 
-Again, I tuned both my boosted trees and random forest to similar hyperparameter ranges because the two models function in relatively similar manners. 
+Again, I tuned both my boosted trees and random forest to similar hyperparameter ranges because I want to compare the two models performance in a relatively similar fashion. 
 
 ### K-nearest Neighbors
 
@@ -644,6 +642,8 @@ boost_final_result <- fit(boost_final, data = accidents_train)
 save(boost_final_result,file = "R_Scripts/model_fitting/best_model.rda")
 ```
 
+I want to emphasize that I'm mainly focusing on roc_auc because accuracy can be an extremely skewed value here especially since we have such a large class inbalance and naturally the models will produce a high accuracy due to the fact.
+
 ### Displaying Graphics
 
 loading data
@@ -695,5 +695,5 @@ California is the leading number of fatal car accidents in the US each year, so 
 
 In regards to the models, if I had infinite computing power there would be many things that could be altered for a higher roc_auc. One such way may be playing around with the hyperparameters ranges even further, or the up sampling proportions, by either increasing or decreasing the value. My model doesn't seem to over predict severity 2 accidents so therefore there shouldn't be a reason to lower the proportions, so maybe increasing the proportion might produce higher roc_auc. Additionally, another option would be the down sample my abundant class, severity 2, and then adding weights to the lower class. Because I had already limited my extremely large, original data set to only 2021 and California, I no longer wanted to cut my data by anymore so I wouldn't leave out data that could've been crucial in analysis therefore I decided to choose up sampling instead. Nonetheless, down sampling would indeed be an option to explore. With that said, 2021 was also the year that COVID was still a major concern and ongoing pandemic, therefore there might be issues with documentation and maybe even less people on the road therefore far less severe accidents that what might normally occur in previous and future years, which is definitely something that should be considered when looking at my results.
 
-To make some final remarks, I believe that boosted trees and random forests will still function the best in terms of future analysis because k-nearest neighbors has obvious limitations, as such with logistic and singular decisions trees. Although my roc_auc wasn't impressive by any means, with the two best models producing only ~66% roc_auc, it still fit my testing data quite well meaning my model was by no means over fitted. Overall, I am pretty happy with the outcome of the models, and would like to make some changes in the future in terms of data set range and even explore other states and years as well.
+To make some final remarks, I believe that boosted trees and random forests will still function the best in terms of future analysis because k-nearest neighbors has obvious limitations, as such with logistic and singular decisions trees. Although my roc_auc wasn't impressive by any means, with the two best models producing only ~66% roc_auc, it still fit my testing data quite well meaning my model was by no means over fitted. But, as shown in logistic regression pertaining to the model, we must take the accuracy with a grain of salt because since we have so many severity 2 observations, all our models are clearly going to mainly predict severity 2 therefore leading to a high accuracy since getting all or some of the severity 4 prediction wrongs will not hurt accuracy by all too much. Overall, I am pretty happy with the outcome of the models, and would like to make some changes in the future in terms of data set range and even explore other states and years as well.
 
